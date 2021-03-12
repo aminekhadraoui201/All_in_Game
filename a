@@ -1,0 +1,60 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_ttf.h> 
+#include <SDL/SDL_image.h>
+#include <SDL/SDL_mixer.h>
+#include "fonction.h"
+
+//------------------------------------------------------------------------------------------------------------
+int main(int argc, char *argv[])
+{
+menu M;
+init(&M);
+char txt[]= "ALL IN GAME";
+SDL_Rect postxt;
+SDL_Surface *texte;
+TTF_Font *police;
+SDL_Color couleurNoire;
+//INITIALISATION DES POSITIONS
+init_position(&(M).positionFond,&(M).posPlay,&(M).posOption,&(M).posQuit,&(M).posbackp,&(M).posbacko);
+(M).ecran = SDL_SetVideoMode(1124, 624, 32, SDL_HWSURFACE);
+SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO);
+//
+couleurNoire.r=0;
+couleurNoire.g=0;
+couleurNoire.b=0;
+postxt.x=930;
+postxt.y=605;
+TTF_Init();
+police = TTF_OpenFont("UbuntuMono-Regular.ttf", 14);
+//INITIALISATION SONS
+Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024);
+//init_son((M).backgroundSound,(M).button);
+if(Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,1024)==-1)
+{
+printf("%s",Mix_GetError());
+}
+M.backgroundSound=Mix_LoadMUS("music.mp3");
+M.button=Mix_LoadWAV("button-16.wav");
+Mix_PlayMusic(M.backgroundSound,-1);
+//premier affichage;
+init_fond((M).ecran, (M).imageDeFond, (M).positionFond,(M).play,(M).option,(M).quit, (M).posPlay, (M).posOption, (M).posQuit);
+texte = TTF_RenderText_Blended (police,txt ,couleurNoire);
+while (M.continuer)
+{
+M.choix=0;
+
+
+//SDL_BlitSurface(texte, NULL, M.ecran, &postxt);
+deplacement_selection(&(M).choix, &(M).ligne, &(M).son, &(M).continuer, M.button);
+SDL_BlitSurface(texte, NULL, M.ecran, &postxt);
+update_affichage(M.choix, M.ligne, M.son, M.ecran, M.imageDeFond,M.positionFond,M.play,M.option,M.quit,M.posPlay,M.posOption, M.posQuit,M.play1,M.option1,M.quit1);
+
+validation(M.choix,M.ligne, M.posbackp,M.ecran,M.backp, M.backo,M.posbacko,M.Smenu,M.pos,M.Play,M.backgroundSound);
+
+}
+
+SDL_Quit();
+return EXIT_SUCCESS;
+}
